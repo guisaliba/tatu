@@ -1,6 +1,7 @@
 import { Address } from 'src/addresses/address.entity';
 import { Appointment } from 'src/appointments/appointment.entity';
 import { Social } from 'src/socials/social.entity';
+import { StudioMembership } from 'src/studio-membership/studio-membership.entity';
 import {
   Entity,
   Column,
@@ -10,7 +11,7 @@ import {
   UpdateDateColumn,
   OneToOne,
   OneToMany,
-  Timestamp,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('studios')
@@ -24,10 +25,20 @@ export class Studio {
   @Column({ nullable: true })
   description: string;
 
-  @OneToOne(() => Address, (address) => address.studio)
+  @OneToOne(() => Address, (address) => address.studio, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'address_id' })
   address: Relation<Address>;
 
-  @OneToMany(() => Social, (social) => social.studio, { nullable: true })
+  @OneToMany(() => StudioMembership, (membership) => membership.studio)
+  memberships: Relation<StudioMembership[]>;
+
+  @OneToMany(() => Social, (social) => social.studio, {
+    nullable: true,
+    cascade: true,
+  })
   socials: Relation<Social[]>;
 
   @OneToMany(() => Appointment, (appointment) => appointment.studio, {
@@ -36,8 +47,8 @@ export class Studio {
   appointments: Relation<Appointment[]>;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Timestamp;
+  createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Timestamp;
+  updatedAt: Date;
 }
