@@ -1,3 +1,5 @@
+import { AppointmentStatus } from 'src/common/enums';
+import { Payment } from 'src/payments/payment.entity';
 import { Studio } from 'src/studios/studio.entity';
 import { User } from 'src/users/user.entity';
 import {
@@ -8,7 +10,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  Timestamp,
+  OneToOne,
 } from 'typeorm';
 
 @Entity('appointments')
@@ -23,23 +25,31 @@ export class Appointment {
   studio: Relation<Studio>;
 
   @Column({ type: 'timestamptz' })
-  date: Timestamp;
+  date: Date;
 
+  // Duration in minutes
   @Column()
   duration: number;
 
-  @Column()
+  @Column({ type: 'text' })
   description: string;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   value: number;
 
-  @Column()
-  status: string;
+  @Column({
+    type: 'enum',
+    enum: AppointmentStatus,
+    default: AppointmentStatus.SCHEDULED,
+  })
+  status: AppointmentStatus;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Timestamp;
+  @OneToOne(() => Payment, (payment) => payment.appointment)
+  payment: Relation<Payment>;
 
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Timestamp;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
+  updatedAt: Date;
 }

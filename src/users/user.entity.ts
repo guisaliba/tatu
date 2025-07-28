@@ -1,5 +1,7 @@
 import { Appointment } from 'src/appointments/appointment.entity';
+import { Payment } from 'src/payments/payment.entity';
 import { Social } from 'src/socials/social.entity';
+import { StudioMembership } from 'src/studio-membership/studio-membership.entity';
 import {
   Entity,
   Column,
@@ -8,7 +10,6 @@ import {
   Relation,
   CreateDateColumn,
   UpdateDateColumn,
-  Timestamp,
 } from 'typeorm';
 
 @Entity('users')
@@ -28,8 +29,11 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
+
+  @OneToMany(() => StudioMembership, (membership) => membership.user)
+  memberships: Relation<StudioMembership[]>;
 
   @OneToMany(() => Social, (social) => social.user)
   socials: Relation<Social[]>;
@@ -37,9 +41,12 @@ export class User {
   @OneToMany(() => Appointment, (appointment) => appointment.user)
   appointments: Relation<Appointment[]>;
 
+  @OneToMany(() => Payment, (payment) => payment.user)
+  payments: Relation<Payment[]>;
+
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Timestamp;
+  createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Timestamp;
+  updatedAt: Date;
 }

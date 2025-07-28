@@ -23,10 +23,10 @@ export class Address {
   @Column()
   state: string;
 
-  @Column()
+  @Column({ name: 'complementary_info', nullable: true })
   complementaryInfo: string;
 
-  @Column()
+  @Column({ name: 'postal_code' })
   postalCode: string;
 
   @Column()
@@ -35,9 +35,9 @@ export class Address {
   @OneToOne(() => Studio, (studio) => studio.address)
   studio: Relation<Studio>;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt: Date;
 }
