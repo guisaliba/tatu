@@ -1,0 +1,6 @@
+'**/*.{ts,js,mjs,cjs}':
+  - pnpm eslint --fix
+  - pnpm prettier --write
+
+'**/*.{json,yaml,md}':
+  - pnpm prettier --write
