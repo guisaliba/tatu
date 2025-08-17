@@ -1,5 +1,5 @@
-import { Appointment } from 'src/appointments/appointment.interface';
-import { Social } from 'src/socials/social.interface';
+import { Appointment } from 'src/appointments/interfaces/appointment.interface';
+import { Social } from 'src/users/interfaces/social.interface';
 
 export interface User {
   id: string;
