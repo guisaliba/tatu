@@ -1,5 +1,5 @@
-import { Studio } from 'src/studios/studio.interface';
-import { User } from 'src/users/user.interface';
+import { Studio } from 'src/studios/interfaces/studio.interface';
+import { User } from 'src/users/interfaces/user.interface';
 
 export interface Appointment {
   id: string;

@@ -1,4 +1,4 @@
-import { Studio } from 'src/studios/studio.interface';
+import { Studio } from 'src/studios/interfaces/studio.interface';
 
 export interface Address {
   id: number;
