@@ -51,6 +51,8 @@ model User {
   paymentsMade StudioPayment[]    @relation("ArtistPayments")
   socials      Social[]
   chatSessions ChatSession[]
+
+  @@map("users")
 }
 
 model Studio {
@@ -66,6 +68,8 @@ model Studio {
 
   address   Address @relation(fields: [addressId], references: [id], onDelete: Cascade)
   addressId Int     @unique
+
+  @@map("studios")
 }
 
 model Address {
@@ -77,6 +81,8 @@ model Address {
   country String
 
   studio Studio?
+
+  @@map("addresses")
 }
 
 model Appointment {
@@ -94,6 +100,8 @@ model Appointment {
 
   customerCharge CustomerCharge?
   studioPayment  StudioPayment?
+
+  @@map("appointments")
 }
 
 model StudioMembership {
@@ -108,6 +116,7 @@ model StudioMembership {
   studioId String
 
   @@id([userId, studioId])
+  @@map("studio_memberships")
 }
 
 model CustomerCharge {
@@ -119,6 +128,8 @@ model CustomerCharge {
 
   appointment   Appointment @relation(fields: [appointmentId], references: [id])
   appointmentId String      @unique
+
+  @@map("customer_charges")
 }
 
 model StudioPayment {
@@ -136,6 +147,8 @@ model StudioPayment {
 
   artist   User   @relation("ArtistPayments", fields: [artistId], references: [id])
   artistId String
+
+  @@map("studio_payments")
 }
 
 model Social {
@@ -151,6 +164,7 @@ model Social {
   studioId String?
 
   @@unique([service, username])
+  @@map("socials")
 }
 
 model ChatSession {
@@ -165,6 +179,8 @@ model ChatSession {
   studioId String
 
   messages ChatMessage[]
+
+  @@map("chat_sessions")
 }
 
 model ChatMessage {
@@ -175,4 +191,6 @@ model ChatMessage {
 
   session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   sessionId String
+
+  @@map("chat_messages")
 }
