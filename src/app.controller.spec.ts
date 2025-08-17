@@ -16,9 +16,7 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return homepage welcoming message', () => {
-      expect(appController.getHomepage()).toBe(
-        'Welcome to Fintattoo homepage!',
-      );
+      expect(appController.getHomepage()).toBe('Welcome to Tatu homepage!');
     });
   });
 });

@@ -1,5 +1,5 @@
 {
-  "name": "fintattoo",
+  "name": "tatu",
   "version": "0.0.1",
   "description": "Tatu is a finance tracker and scheduler for tattoo artists and studio owners",
   "author": "",
@@ -26,7 +26,6 @@
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
-    "@nestjs/typeorm": "^11.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
     "pg": "^8.15.6",
@@ -60,7 +59,6 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typeorm": "^0.3.22",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },
