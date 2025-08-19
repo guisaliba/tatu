@@ -3,4 +3,8 @@
   - pnpm prettier --write
 
 '**/*.{json,yaml,md}':
-  - pnpm prettier --write
+  - npm run eslint -- --fix
+  - npm run prettier -- --write
+
+'**/*.{json,yaml,md}':
+  - npm run prettier -- --write
