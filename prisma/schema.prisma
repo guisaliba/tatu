@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model addresses {
+  id      Int      @id @default(autoincrement())
+  street  String
+  city    String
+  state   String
+  zip     String
+  country String
+  studios studios?
+}
+
+model appointments {
+  id               String            @id
+  date             DateTime
+  description      String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime
+  studioId         String
+  artistId         String
+  users            users             @relation(fields: [artistId], references: [id])
+  studios          studios           @relation(fields: [studioId], references: [id])
+  customer_charges customer_charges?
+  studio_payments  studio_payments?
+}
+
+model chat_messages {
+  id            String        @id
+  content       String
+  sender        MessageSender
+  createdAt     DateTime      @default(now())
+  sessionId     String
+  chat_sessions chat_sessions @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model chat_sessions {
+  id            String          @id
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime
+  userId        String
+  studioId      String
+  chat_messages chat_messages[]
+  studios       studios         @relation(fields: [studioId], references: [id])
+  users         users           @relation(fields: [userId], references: [id])
+}
+
+model customer_charges {
+  id            String       @id
+  totalAmount   Float
+  paymentMethod String?
+  status        ChargeStatus @default(PENDING)
+  paidAt        DateTime?
+  appointmentId String       @unique
+  appointments  appointments @relation(fields: [appointmentId], references: [id])
+}
+
+model socials {
+  id       String   @id
+  service  String
+  username String
+  url      String?
+  userId   String?
+  studioId String?
+  studios  studios? @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  users    users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([service, username])
+}
+
+model studio_memberships {
+  role         UserRole     @default(ARTIST)
+  paymentModel PaymentModel
+  paymentValue Float
+  userId       String
+  studioId     String
+  studios      studios      @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  users        users        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, studioId])
+}
+
+model studio_payments {
+  id            String              @id
+  amountDue     Float
+  status        StudioPaymentStatus @default(PENDING)
+  dueDate       DateTime
+  paidAt        DateTime?
+  appointmentId String              @unique
+  studioId      String
+  artistId      String
+  appointments  appointments        @relation(fields: [appointmentId], references: [id])
+  users         users               @relation(fields: [artistId], references: [id])
+  studios       studios             @relation(fields: [studioId], references: [id])
+}
+
+model studios {
+  id                 String               @id
+  email              String?              @unique
+  description        String?
+  addressId          Int                  @unique
+  appointments       appointments[]
+  chat_sessions      chat_sessions[]
+  socials            socials[]
+  studio_memberships studio_memberships[]
+  studio_payments    studio_payments[]
+  addresses          addresses            @relation(fields: [addressId], references: [id], onDelete: Cascade)
+}
+
+model users {
+  id                 String               @id
+  email              String               @unique
+  name               String?
+  password           String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime
+  appointments       appointments[]
+  chat_sessions      chat_sessions[]
+  socials            socials[]
+  studio_memberships studio_memberships[]
+  studio_payments    studio_payments[]
+}
+
+enum ChargeStatus {
+  PENDING
+  PAID
+  PARTIALLY_PAID
+}
+
+enum MessageSender {
+  USER
+  ASSISTANT
+}
+
+enum PaymentModel {
+  PERCENTAGE
+  FIXED_FEE
+  HOURLY
+}
+
+enum StudioPaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+enum UserRole {
+  ARTIST
+  OWNER
+}

@@ -1,0 +1,7 @@
+'**/*.{ts,js,mjs,cjs}':
+  - npm run lint
+  - npm run format
+
+'**/*.{json,yaml,md}':
+  - npm run lint
+  - npm run format

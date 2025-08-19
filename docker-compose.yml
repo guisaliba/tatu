@@ -1,44 +1,17 @@
 services:
-  db:
-    image: postgres:latest
-    restart: always
-    container_name: postgres_db
-    environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_DB: ${DB_NAME}
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
-      interval: 1s
-      timeout: 5s
-      retries: 10
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - "3000:5432"
-    networks:
-      - nestjs-network
-
   app:
+    extends:
+      file: docker-compose.base.yml
+      service: app
     build:
       context: .
       dockerfile: Dockerfile
     env_file: .env
-    environment:
-      PORT: ${PORT}
-    ports:
-      - "8000:8000"
-    depends_on:
-      db:
-        condition: service_healthy
+    command: >
+      sh -c   "npx prisma migrate deploy && npm run start:dev"
+    healthcheck:
+      interval: 5s
+      timeout: 5s
     volumes:
       - ./src:/app/src
-    networks:
-      - nestjs-network
-
-networks:
-  nestjs-network:
-    driver: bridge
-
-volumes:
-  pgdata:
+      - ./prisma:/app/prisma
