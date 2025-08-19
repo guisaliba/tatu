@@ -5,6 +5,3 @@
 '**/*.{json,yaml,md}':
   - npm run eslint -- --fix
   - npm run prettier -- --write
-
-'**/*.{json,yaml,md}':
-  - npm run prettier -- --write

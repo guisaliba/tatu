@@ -1,5 +1,23 @@
-Dockerfile
- .dockerignore
+# Build files
+Dockerfile*
+.dockerignore
+docker-compose*.yml
+
+# Dependencies
 node_modules
 npm-debug.log
-Dist
+
+# Build outputs
+dist
+generated
+
+# Development files
+.env*
+*.log
+.git
+README.md
+
+# Test files
+test/
+**/*.spec.ts
+**/*.test.ts
