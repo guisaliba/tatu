@@ -3,10 +3,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppDataSource } from './data-source';
 
 import { UsersModule } from './users/users.module';
+import { AppointmentsModule } from './appointments/appointments.module';
+import { AuthModule } from './auth/auth.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -14,12 +15,12 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
       envFilePath: ['.env'],
     }),
-    TypeOrmModule.forRoot(AppDataSource.options),
     UsersModule,
+    AppointmentsModule,
+    AuthModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {
-  constructor() {}
-}
+export class AppModule {}
