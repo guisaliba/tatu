@@ -8,124 +8,9 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model addresses {
-  id      Int      @id @default(autoincrement())
-  street  String
-  city    String
-  state   String
-  zip     String
-  country String
-  studios studios?
-}
-
-model appointments {
-  id               String            @id
-  date             DateTime
-  description      String?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime
-  studioId         String
-  artistId         String
-  users            users             @relation(fields: [artistId], references: [id])
-  studios          studios           @relation(fields: [studioId], references: [id])
-  customer_charges customer_charges?
-  studio_payments  studio_payments?
-}
-
-model chat_messages {
-  id            String        @id
-  content       String
-  sender        MessageSender
-  createdAt     DateTime      @default(now())
-  sessionId     String
-  chat_sessions chat_sessions @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-}
-
-model chat_sessions {
-  id            String          @id
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime
-  userId        String
-  studioId      String
-  chat_messages chat_messages[]
-  studios       studios         @relation(fields: [studioId], references: [id])
-  users         users           @relation(fields: [userId], references: [id])
-}
-
-model customer_charges {
-  id            String       @id
-  totalAmount   Float
-  paymentMethod String?
-  status        ChargeStatus @default(PENDING)
-  paidAt        DateTime?
-  appointmentId String       @unique
-  appointments  appointments @relation(fields: [appointmentId], references: [id])
-}
-
-model socials {
-  id       String   @id
-  service  String
-  username String
-  url      String?
-  userId   String?
-  studioId String?
-  studios  studios? @relation(fields: [studioId], references: [id], onDelete: Cascade)
-  users    users?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([service, username])
-}
-
-model studio_memberships {
-  role         UserRole     @default(ARTIST)
-  paymentModel PaymentModel
-  paymentValue Float
-  userId       String
-  studioId     String
-  studios      studios      @relation(fields: [studioId], references: [id], onDelete: Cascade)
-  users        users        @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([userId, studioId])
-}
-
-model studio_payments {
-  id            String              @id
-  amountDue     Float
-  status        StudioPaymentStatus @default(PENDING)
-  dueDate       DateTime
-  paidAt        DateTime?
-  appointmentId String              @unique
-  studioId      String
-  artistId      String
-  appointments  appointments        @relation(fields: [appointmentId], references: [id])
-  users         users               @relation(fields: [artistId], references: [id])
-  studios       studios             @relation(fields: [studioId], references: [id])
-}
-
-model studios {
-  id                 String               @id
-  email              String?              @unique
-  description        String?
-  addressId          Int                  @unique
-  appointments       appointments[]
-  chat_sessions      chat_sessions[]
-  socials            socials[]
-  studio_memberships studio_memberships[]
-  studio_payments    studio_payments[]
-  addresses          addresses            @relation(fields: [addressId], references: [id], onDelete: Cascade)
-}
-
-model users {
-  id                 String               @id
-  email              String               @unique
-  name               String?
-  password           String?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime
-  appointments       appointments[]
-  chat_sessions      chat_sessions[]
-  socials            socials[]
-  studio_memberships studio_memberships[]
-  studio_payments    studio_payments[]
+enum UserRole {
+  ARTIST
+  OWNER
 }
 
 enum ChargeStatus {
@@ -134,9 +19,10 @@ enum ChargeStatus {
   PARTIALLY_PAID
 }
 
-enum MessageSender {
-  USER
-  ASSISTANT
+enum StudioPaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
 }
 
 enum PaymentModel {
@@ -145,13 +31,164 @@ enum PaymentModel {
   HOURLY
 }
 
-enum StudioPaymentStatus {
-  PENDING
-  PAID
-  OVERDUE
+enum MessageSender {
+  USER
+  ASSISTANT
 }
 
-enum UserRole {
-  ARTIST
-  OWNER
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships  StudioMembership[]
+  appointments Appointment[]
+  paymentsMade StudioPayment[]    @relation("ArtistPayments")
+  socials      Social[]
+  chatSessions ChatSession[]
+
+  @@map("users")
+}
+
+model Studio {
+  id          String  @id @default(cuid())
+  email       String? @unique
+  description String? @db.Text
+
+  memberships      StudioMembership[]
+  appointments     Appointment[]
+  paymentsReceived StudioPayment[]    @relation("StudioPayments")
+  chatSessions     ChatSession[]
+  socials          Social[]
+
+  address   Address @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  addressId Int     @unique
+
+  @@map("studios")
+}
+
+model Address {
+  id      Int    @id @default(autoincrement())
+  street  String
+  city    String
+  state   String
+  zip     String
+  country String
+
+  studio Studio?
+
+  @@map("addresses")
+}
+
+model Appointment {
+  id          String   @id @default(cuid())
+  date        DateTime
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  studio   Studio @relation(fields: [studioId], references: [id])
+  studioId String
+
+  artist   User   @relation(fields: [artistId], references: [id])
+  artistId String
+
+  customerCharge CustomerCharge?
+  studioPayment  StudioPayment?
+
+  @@map("appointments")
+}
+
+model StudioMembership {
+  role         UserRole     @default(ARTIST)
+  paymentModel PaymentModel
+  paymentValue Float
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  studio   Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  studioId String
+
+  @@id([userId, studioId])
+  @@map("studio_memberships")
+}
+
+model CustomerCharge {
+  id            String       @id @default(cuid())
+  totalAmount   Float
+  paymentMethod String?
+  status        ChargeStatus @default(PENDING)
+  paidAt        DateTime?
+
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  appointmentId String      @unique
+
+  @@map("customer_charges")
+}
+
+model StudioPayment {
+  id        String              @id @default(cuid())
+  amountDue Float
+  status    StudioPaymentStatus @default(PENDING)
+  dueDate   DateTime
+  paidAt    DateTime?
+
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  appointmentId String      @unique
+
+  studio   Studio @relation("StudioPayments", fields: [studioId], references: [id])
+  studioId String
+
+  artist   User   @relation("ArtistPayments", fields: [artistId], references: [id])
+  artistId String
+
+  @@map("studio_payments")
+}
+
+model Social {
+  id       String  @id @default(cuid())
+  service  String
+  username String
+  url      String?
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+
+  studio   Studio? @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  studioId String?
+
+  @@unique([service, username])
+  @@map("socials")
+}
+
+model ChatSession {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  studio   Studio @relation(fields: [studioId], references: [id])
+  studioId String
+
+  messages ChatMessage[]
+
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id        String        @id @default(cuid())
+  content   String        @db.Text
+  sender    MessageSender
+  createdAt DateTime      @default(now())
+
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId String
+
+  @@map("chat_messages")
 }
