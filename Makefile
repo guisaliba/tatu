@@ -6,7 +6,7 @@ ENV ?= dev
 # Choose compose command based on environment
 COMPOSE=$(if $(filter prod,$(ENV)),$(COMPOSE_PROD),$(COMPOSE_DEV))
 
-.PHONY: help dev prod build build-prod down logs ps exec migrate reset studio format lint test env-dev env-prod env test-env
+.PHONY: help dev prod build build-prod down logs ps exec migrate reset studio format lint test env-dev env-prod env test-env generate migrate reset deploy status validate
 
 help:
 	@echo "Tatu - Tattoo Studio Management System"
@@ -18,6 +18,20 @@ help:
 	@echo "Production Commands:"
 	@echo "  make prod        - Start production environment"
 	@echo "  make build-prod  - Rebuild production containers"
+	@echo ""
+	@echo "Database Commands:"
+	@echo "  make generate    - Generate Prisma client"
+	@echo "  make migrate     - Create and apply migration (make migrate NAME=migration_name)"
+	@echo "  make reset       - Reset database (deletes all data!)"
+	@echo "  make deploy      - Deploy migrations (make deploy ENV=prod)"
+	@echo "  make status      - Check migration status"
+	@echo "  make validate    - Validate Prisma schema"
+	@echo "  make studio      - Open Prisma Studio"
+	@echo ""
+	@echo "Code Quality:"
+	@echo "  make format      - Format code with Prettier"
+	@echo "  make lint        - Run ESLint"
+	@echo "  make test        - Run unit tests"
 	@echo ""
 	@echo "Environment Testing:"
 	@echo "  make env         - Check environment variables (make env ENV=prod)"
@@ -81,12 +95,6 @@ test-env:
 	@echo "=== Testing $(ENV) Environment Variables via Node.js ==="
 	$(COMPOSE) exec app node -e "console.log('NODE_ENV:', process.env.NODE_ENV); console.log('PORT:', process.env.PORT); console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET (hidden)' : 'NOT SET'); console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'SET (hidden)' : 'NOT SET'); console.log('SUPABASE_PROJECT_REF:', process.env.SUPABASE_PROJECT_REF || 'NOT SET');"
 
-# Development-only commands
-migrate:
-	$(COMPOSE_DEV) exec app npx prisma migrate dev
-
-studio:
-	$(COMPOSE_DEV) exec app npx prisma studio
 
 format:
 	$(COMPOSE_DEV) exec app npm run format
@@ -96,6 +104,28 @@ lint:
 
 test:
 	$(COMPOSE_DEV) exec app npm run test
+
+generate:
+	$(COMPOSE_DEV) exec app npx prisma generate
+
+# Optional NAME=my_migration
+migrate:
+	$(COMPOSE_DEV) exec app npx prisma migrate dev $(if $(NAME),--name $(NAME),)
+
+reset:
+	$(COMPOSE_DEV) exec app npx prisma migrate reset -f
+
+deploy:
+	$(COMPOSE) exec app npx prisma migrate deploy
+
+status:
+	$(COMPOSE) exec app npx prisma migrate status
+
+validate:
+	$(COMPOSE) exec app npx prisma validate
+
+studio:
+	$(COMPOSE_DEV) exec app npx prisma studio
 
 db-test:
 	$(COMPOSE_DEV) exec app npx prisma db pull --force
