@@ -11,6 +11,15 @@ datasource db {
 enum UserRole {
   ARTIST
   OWNER
+  ADMIN
+}
+
+enum UserProviderType {
+  GOOGLE
+  INSTAGRAM
+  APPLE
+  TWITTER
+  LOCAL
 }
 
 enum ChargeStatus {
@@ -37,26 +46,47 @@ enum MessageSender {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
+  id        String    @id @default(cuid())
+  email     String    @unique
+  firstName String
+  lastName  String
+  phone     String?
   password  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      UserRole  @default(ARTIST)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
-  memberships  StudioMembership[]
-  appointments Appointment[]
-  paymentsMade StudioPayment[]    @relation("ArtistPayments")
-  socials      Social[]
-  chatSessions ChatSession[]
+  memberships   StudioMembership[]
+  appointments  Appointment[]
+  paymentsMade  StudioPayment[]    @relation("ArtistPayments")
+  socials       Social[]
+  chatSessions  ChatSession[]
+  userProviders UserProvider[]
+  refreshTokens RefreshToken[]
 
   @@map("users")
 }
 
+model UserProvider {
+  id         String           @id @default(cuid())
+  userId     String
+  provider   UserProviderType
+  providerId String
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_providers")
+}
+
 model Studio {
-  id          String  @id @default(cuid())
-  email       String? @unique
-  description String? @db.Text
+  id          String   @id @default(cuid())
+  email       String?  @unique
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   memberships      StudioMembership[]
   appointments     Appointment[]
@@ -65,18 +95,20 @@ model Studio {
   socials          Social[]
 
   address   Address @relation(fields: [addressId], references: [id], onDelete: Cascade)
-  addressId Int     @unique
+  addressId String  @unique
 
   @@map("studios")
 }
 
 model Address {
-  id      Int    @id @default(autoincrement())
-  street  String
-  city    String
-  state   String
-  zip     String
-  country String
+  id        String   @id @default(cuid())
+  street    String
+  city      String
+  state     String
+  zip       String
+  country   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   studio Studio?
 
@@ -106,6 +138,8 @@ model StudioMembership {
   role         UserRole     @default(ARTIST)
   paymentModel PaymentModel
   paymentValue Float
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
@@ -123,6 +157,8 @@ model CustomerCharge {
   paymentMethod String?
   status        ChargeStatus @default(PENDING)
   paidAt        DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
   appointment   Appointment @relation(fields: [appointmentId], references: [id])
   appointmentId String      @unique
@@ -131,11 +167,14 @@ model CustomerCharge {
 }
 
 model StudioPayment {
-  id        String              @id @default(cuid())
-  amountDue Float
-  status    StudioPaymentStatus @default(PENDING)
-  dueDate   DateTime
-  paidAt    DateTime?
+  id           String              @id @default(cuid())
+  amountDue    Float
+  studioAmount Float
+  status       StudioPaymentStatus @default(PENDING)
+  dueDate      DateTime
+  paidAt       DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
 
   appointment   Appointment @relation(fields: [appointmentId], references: [id])
   appointmentId String      @unique
@@ -150,16 +189,18 @@ model StudioPayment {
 }
 
 model Social {
-  id       String  @id @default(cuid())
-  service  String
-  username String
-  url      String?
+  id        String   @id @default(cuid())
+  service   String
+  username  String
+  url       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String?
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 
-  studio   Studio? @relation(fields: [studioId], references: [id], onDelete: Cascade)
-  studioId String?
+  studio   Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
+  studioId String
 
   @@unique([service, username])
   @@map("socials")
@@ -191,4 +232,18 @@ model ChatMessage {
   sessionId String
 
   @@map("chat_messages")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
 }

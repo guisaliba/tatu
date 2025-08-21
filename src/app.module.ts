@@ -14,11 +14,11 @@ import { StudiosModule } from './studios/studios.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    SharedModule,
     UsersModule,
     AppointmentsModule,
     AuthModule,
     PaymentsModule,
-    SharedModule,
     StudiosModule,
   ],
   controllers: [AppController],
