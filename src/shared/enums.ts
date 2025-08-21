@@ -1,6 +1,7 @@
 export enum UserRole {
   ARTIST = 'artist',
   OWNER = 'owner',
+  ADMIN = 'admin',
 }
 
 export enum PaymentModel {
