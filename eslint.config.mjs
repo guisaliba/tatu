@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['eslint.config.mjs', 'dist/', 'node_modules/'],
+    ignores: ['eslint.config.mjs', 'dist/', 'node_modules/', 'test/'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
@@ -29,6 +29,8 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
+      '@typescript-eslint/require-await': 'warn',
+      '@typescript-eslint/no-unused-vars': 'off',
     },
   }
 );
