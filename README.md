@@ -1,98 +1,189 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Tatu - Tattoo Studio Management System
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A comprehensive NestJS application for managing tattoo studios, built with modern technologies and best practices.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Quick Start
 
-## Description
+### Prerequisites
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Docker and Docker Compose
+- Node.js 18+ (for local development)
+- npm or yarn
 
-## Project setup
+### Environment Setup
+
+The project uses environment-specific configurations:
+
+- `.env` - Development environment variables
+- `.env.prod` - Production environment variables
+
+### Development with Docker
 
 ```bash
-$ npm install
+# Clone the repository
+git clone <repository-url>
+cd tatu
+
+# Start development environment
+make dev-up
+
+# View logs
+make dev-logs
+
+# Run database migrations
+make dev-migrate
+
+# Generate Prisma client
+make dev-generate
+
+# Stop development environment
+make dev-down
 ```
 
-## Compile and run the project
+### Production with Docker
 
 ```bash
-# development
-$ npm run start
+# Build and start production environment
+make prod-up
 
-# watch mode
-$ npm run start:dev
+# View production logs
+make prod-logs
 
-# production mode
-$ npm run start:prod
+# Stop production environment
+make prod-down
 ```
 
-## Run tests
+### Local Development
 
 ```bash
-# unit tests
-$ npm run test
+# Install dependencies
+npm install
 
-# e2e tests
-$ npm run test:e2e
+# Set up environment variables
+cp .env.example .env
 
-# test coverage
-$ npm run test:cov
+# Generate Prisma client
+npm run prisma:generate
+
+# Run database migrations
+npm run prisma:migrate
+
+# Start development server
+npm run start:dev
 ```
 
-## Deployment
+## 📁 Project Structure
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+```txt
+src/
+├── auth/                 # Authentication module
+├── users/               # User management
+├── studios/             # Studio management
+├── appointments/        # Appointment scheduling
+├── payments/           # Payment processing
+├── ai/                 # AI chat functionality
+└── shared/             # Shared services and utilities
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+prisma/
+├── schema.prisma       # Database schema
+└── migrations/         # Database migrations
+
+docker/                 # Docker configurations
+├── Dockerfile          # Development container
+└── Dockerfile.prod     # Production container
+```
+
+## 🗄️ Database Schema
+
+The application uses Prisma with PostgreSQL and includes the following main entities:
+
+- **User**: User accounts with authentication
+- **Studio**: Tattoo studio information
+- **Appointment**: Booking management
+- **Social**: Social media links
+- **Payments**: Payment tracking
+- **Chat**: AI chat sessions
+
+## 🔧 Available Scripts
+
+### Development
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run start:dev      # Start development server
+npm run build          # Build for production
+npm run test           # Run unit tests
+npm run test:e2e       # Run end-to-end tests
+npm run lint           # Run linting
+npm run format         # Format code with Prettier
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Database
 
-## Resources
+```bash
+npm run prisma:generate    # Generate Prisma client
+npm run prisma:migrate     # Run migrations
+npm run prisma:studio      # Open Prisma Studio
+npm run prisma:seed        # Seed database
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### Docker Commands (via Makefile)
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+make dev-up           # Start development environment
+make dev-down         # Stop development environment
+make dev-logs         # View development logs
+make prod-up          # Start production environment
+make prod-down        # Stop production environment
+make prod-logs        # View production logs
+```
 
-## Support
+## 🧪 Testing
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+The project includes comprehensive test coverage:
 
-## Stay in touch
+```bash
+# Run all tests
+npm test
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# Run tests in watch mode
+npm run test:watch
 
-## License
+# Run e2e tests
+npm run test:e2e
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+# Generate coverage report
+npm run test:cov
+```
+
+## 🏭 Production Deployment
+
+The application is production-ready with:
+
+- Multi-stage Docker builds for optimized images
+- Environment-specific configurations
+- Security hardening (non-root user, minimal attack surface)
+- Health checks and proper logging
+- External database connectivity (Supabase)
+
+## 📚 API Documentation
+
+The API follows REST principles with the following main endpoints:
+
+- `/auth` - Authentication endpoints
+- `/users` - User management
+- `/studios` - Studio operations
+- `/appointments` - Appointment scheduling
+- `/payments` - Payment processing
+- `/ai` - AI chat functionality
+
+## 🔒 Security Features
+
+- Password hashing with bcrypt
+- JWT-based authentication
+- Type-safe database operations with Prisma
+- Input validation and sanitization
+- Environment variable protection
+
+## 📄 License
+
+This project is licensed under the MIT License.
